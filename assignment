@@ -1,0 +1,65 @@
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class UnionFind {
+public:
+    UnionFind(int n) {
+        parent.resize(n);
+        rank.resize(n, 1);
+        for (int i = 0; i < n; i++) {
+            parent[i] = i;
+        }
+    }
+
+    int find(int x) {
+        if (parent[x] != x) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    bool unionSet(int x, int y) {
+        int rootX = find(x);
+        int rootY = find(y);
+        if (rootX == rootY) {
+            return false;
+        }
+        if (rank[rootX] < rank[rootY]) {
+            swap(rootX, rootY);
+        }
+        parent[rootY] = rootX;
+        rank[rootX] += rank[rootY];
+        return true;
+    }
+
+private:
+    vector<int> parent;
+    vector<int> rank;
+};
+
+int makeConnected(int n, vector<vector<int>>& connections) {
+    if (connections.size() < n - 1) {
+        return -1;
+    }
+
+    UnionFind uf(n);
+    int components = n;
+    for (const auto& connection : connections) {
+        if (uf.unionSet(connection[0], connection[1])) {
+            components--;
+        }
+    }
+
+    return components - 1;
+}
+
+int main() {
+    int n = 4;
+    vector<vector<int>> connections = {{0, 1}, {0, 2}, {1, 2}};
+    cout << makeConnected(n, connections) << endl;
+
+    return 0;
+}
